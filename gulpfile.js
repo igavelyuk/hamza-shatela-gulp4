@@ -1,6 +1,12 @@
 // Fetch required plugins
 const gulp = require('gulp');
-const { src, dest, watch, series, parallel } = require('gulp');
+const {
+  src,
+  dest,
+  watch,
+  series,
+  parallel
+} = require('gulp');
 // const imagemin = require('gulp-imagemin');
 const sourcemaps = require('gulp-sourcemaps');
 const concat = require('gulp-concat');
@@ -19,45 +25,45 @@ let /** @type {import("imagemin-jpegtran")} */ imageminJpegtran;
 let /** @type {import("imagemin-pngquant").default} */ imageminPngquant;
 
 const startup = async () => {
-    // @ts-ignore
-    imagemin = (await import("gulp-imagemin")).default;
-    // @ts-ignore
-    imageminJpegtran = (await import("imagemin-jpegtran")).default;
-    imageminPngquant = (await import("imagemin-pngquant")).default;
+  // @ts-ignore
+  imagemin = (await import("gulp-imagemin")).default;
+  // @ts-ignore
+  imageminJpegtran = (await import("imagemin-jpegtran")).default;
+  imageminPngquant = (await import("imagemin-pngquant")).default;
 };
 
 // run this task before any that require imagemin
 gulp.task("startup", async () => {
-    await startup();
+  await startup();
 });
 
-const folder = "preview-file"
-const assets = "preview-file/assest"
+const folder = "previewfile"
+const asset = "previewfile/assest"
 // All paths
 const paths = {
   html: {
-    src: ['./src/'+folder+'/**/*.html'],
-    dest: './dist/'+folder+'/'
+    src: ['./src/' + folder + '/*.html'],
+    dest: './dist/' + folder + '/',
   },
   images: {
-    src: ['./src/'+assets+'/**/*'],
-    dest: './dist/'+assets+'/images/'
+    src: ['./src/' + folder + '/**/*'],
+    dest: './dist/' + folder + '/',
   },
   css: {
-    src: ['./src/'+assets+'/**/*.css'],
-    dest: './dist/'+assets+'/css/'
+    src: ['./src/'+ folder +'/assets/css/**/*.css'],
+    dest: './dist/'+ folder +'/assets/css/',
   },
   styles: {
-    src: ['./src/'+assets+'/**/*.scss'],
-    dest: './dist/'+assets+'/css/'
+    src: ['./src/'+ folder +'/assets/scss/**/*.scss'],
+    dest: './dist/'+ folder +'/assets/scss/',
   },
   scripts: {
-    src: ['./src/'+assets+'/**/*.js'],
-    dest: './dist/'+assets+'/js/'
+    src: ['./src/'+ folder +'/assets/js/**/*.js'],
+    dest: './dist/'+ folder +'/assets/js/',
   },
   cachebust: {
-    src: ['./src/'+folder+'/**/*.html'],
-    dest: './dist/'+folder+'/'
+    src: ['./src/' + folder + '/**/*.html'],
+    dest: './dist/' + folder + '/',
   },
 };
 
@@ -73,17 +79,28 @@ function doAll() {
 
 function copyHtml() {
   return src(paths.html.src)
-  .pipe(htmlmin({ collapseWhitespace: true }))
-  .pipe(dest(paths.html.dest));
+    .pipe(htmlmin({
+      collapseWhitespace: true
+    }))
+    .pipe(dest(paths.html.dest));
 }
 
+// function copyCss() {
+//   return src(paths.css.src)
+//   .pipe(cssmin())
+//   .pipe(rename({suffix: '.min'}))
+//   .pipe(dest(paths.css.dest));
+// }
 function copyCss() {
-  return src(paths.css.src)
-  .pipe(cssmin())
-  .pipe(rename({suffix: '.min'}))
-  .pipe(gulp.dest('dist'));
+  return gulp.src(paths.css.src)
+    .pipe(postcss([autoprefixer(), cssnano()]))
+    .pipe(postcss([autoprefixer(), cssnano()]))
+    .pipe(rename({
+      suffix: '.min'
+    }))
+    .pipe(sourcemaps.write('.'))
+    .pipe(dest(paths.css.dest));
 }
-
 // Optimize images(.png, .jpeg, .gif, .svg)
 /**
  * Custom options
@@ -113,7 +130,9 @@ function compileStyles() {
     .pipe(sourcemaps.init())
     .pipe(sass().on('error', sass.logError))
     .pipe(postcss([autoprefixer(), cssnano()]))
-    .pipe(rename({ suffix: '.min' }))
+    .pipe(rename({
+      suffix: '.min'
+    }))
     .pipe(sourcemaps.write('.'))
     .pipe(dest(paths.styles.dest));
 }
@@ -126,7 +145,9 @@ function minifyScripts() {
   return src(paths.scripts.src)
     .pipe(sourcemaps.init())
     .pipe(terser().on('error', (error) => console.log(error)))
-    .pipe(rename({ suffix: '.min' }))
+    .pipe(rename({
+      suffix: '.min'
+    }))
     .pipe(sourcemaps.write('.'))
     .pipe(dest(paths.scripts.dest));
 }
@@ -151,7 +172,7 @@ function watcher() {
   watch(paths.scripts.src, parallel(minifyScripts, cacheBust));
 }
 // Export tasks to make them public
-exports.copyHtml = copyCss;
+exports.copyCss = copyCss;
 exports.copyHtml = copyHtml;
 exports.optimizeImages = optimizeImages;
 exports.compileStyles = compileStyles;
