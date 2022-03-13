@@ -62,14 +62,23 @@ const paths = {
 };
 
 // Copy html files
+function doAll() {
+  copyCss();
+  copyHtml();
+  optimizeImages();
+  compileStyles();
+  minifyScripts();
+  cacheBust();
+}
+
 function copyHtml() {
   return src(paths.html.src)
   .pipe(htmlmin({ collapseWhitespace: true }))
   .pipe(dest(paths.html.dest));
 }
 
-function copyHtml() {
-  return src('src/**/*.css')
+function copyCss() {
+  return src(paths.css.src)
   .pipe(cssmin())
   .pipe(rename({suffix: '.min'}))
   .pipe(gulp.dest('dist'));
@@ -142,6 +151,7 @@ function watcher() {
   watch(paths.scripts.src, parallel(minifyScripts, cacheBust));
 }
 // Export tasks to make them public
+exports.copyHtml = copyCss;
 exports.copyHtml = copyHtml;
 exports.optimizeImages = optimizeImages;
 exports.compileStyles = compileStyles;
@@ -149,8 +159,8 @@ exports.minifyScripts = minifyScripts;
 exports.cacheBust = cacheBust;
 exports.watcher = watcher;
 exports.default = series(
-  parallel(copyHtml, optimizeImages, compileStyles, minifyScripts),
+  parallel(copyCss, copyHtml, optimizeImages, compileStyles, minifyScripts),
   cacheBust,
-  watcher
+  watcher, doAll
 );
 //
