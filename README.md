@@ -20,4 +20,9 @@ touch .gitignore
 npm install --save-dev gulp-sourcemaps gulp-concat gulp-rename gulp-replace gulp-terser gulp-sass gulp-postcss autoprefixer cssnano gulp-htmlmin
 ```
 
+```
+npm install --save-dev gulp-imagemin imagemin-jpegtran imagemin-pngquant
+```
+
+
 touch gulpfile.js
