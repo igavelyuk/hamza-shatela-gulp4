@@ -1,0 +1,23 @@
+{
+  "name": "hamza-shatela-gulp4",
+  "version": "1.0.0",
+  "description": "Upwork task Hamza Shatela gulp4 template with node v17.6.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/igavelyuk/hamza-shatela-gulp4.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/igavelyuk/hamza-shatela-gulp4/issues"
+  },
+  "homepage": "https://github.com/igavelyuk/hamza-shatela-gulp4#readme",
+  "dependencies": {
+    "gulp": "^4.0.2"
+  }
+}
