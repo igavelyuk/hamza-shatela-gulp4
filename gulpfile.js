@@ -13,7 +13,6 @@ const autoprefixer = require('autoprefixer');
 const cssnano = require('cssnano');
 const htmlmin = require('gulp-htmlmin');
 const cssmin = require('gulp-cssmin');
-const rename = require('gulp-rename');
 
 let /** @type {import("gulp-imagemin")} */ imagemin;
 let /** @type {import("imagemin-jpegtran")} */ imageminJpegtran;
