@@ -12,6 +12,8 @@ const postcss = require('gulp-postcss');
 const autoprefixer = require('autoprefixer');
 const cssnano = require('cssnano');
 const htmlmin = require('gulp-htmlmin');
+const cssmin = require('gulp-cssmin');
+const rename = require('gulp-rename');
 
 let /** @type {import("gulp-imagemin")} */ imagemin;
 let /** @type {import("imagemin-jpegtran")} */ imageminJpegtran;
@@ -30,28 +32,33 @@ gulp.task("startup", async () => {
     await startup();
 });
 
-
+const folder = "preview-file"
+const assets = "preview-file/assest"
 // All paths
 const paths = {
   html: {
-    src: ['./src/**/*.html'],
-    dest: './dist/',
+    src: ['./src/'+folder+'/**/*.html'],
+    dest: './dist/'+folder+'/'
   },
   images: {
-    src: ['./src/images/**/*'],
-    dest: './dist/images/',
+    src: ['./src/'+assets+'/**/*'],
+    dest: './dist/'+assets+'/images/'
+  },
+  css: {
+    src: ['./src/'+assets+'/**/*.css'],
+    dest: './dist/'+assets+'/css/'
   },
   styles: {
-    src: ['./src/scss/**/*.scss'],
-    dest: './dist/css/',
+    src: ['./src/'+assets+'/**/*.scss'],
+    dest: './dist/'+assets+'/css/'
   },
   scripts: {
-    src: ['./src/js/**/*.js'],
-    dest: './dist/js/',
+    src: ['./src/'+assets+'/**/*.js'],
+    dest: './dist/'+assets+'/js/'
   },
   cachebust: {
-    src: ['./dist/**/*.html'],
-    dest: './dist/',
+    src: ['./src/'+folder+'/**/*.html'],
+    dest: './dist/'+folder+'/'
   },
 };
 
@@ -61,6 +68,14 @@ function copyHtml() {
   .pipe(htmlmin({ collapseWhitespace: true }))
   .pipe(dest(paths.html.dest));
 }
+
+function copyHtml() {
+  return src('src/**/*.css')
+  .pipe(cssmin())
+  .pipe(rename({suffix: '.min'}))
+  .pipe(gulp.dest('dist'));
+}
+
 // Optimize images(.png, .jpeg, .gif, .svg)
 /**
  * Custom options

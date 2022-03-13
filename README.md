@@ -23,6 +23,9 @@ npm install --save-dev gulp-sourcemaps gulp-concat gulp-rename gulp-replace gulp
 ```
 npm install --save-dev gulp-imagemin imagemin-jpegtran imagemin-pngquant
 ```
+```
+npm install --save-dev gulp-cssmin gulp-rename
+```
 
 ### gulpfile.js
 
