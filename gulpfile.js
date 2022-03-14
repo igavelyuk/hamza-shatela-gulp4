@@ -97,12 +97,6 @@ function copyHtml() {
     .pipe(dest(paths.html.dest));
 }
 
-// function copyCss() {
-//   return src(paths.css.src)
-//   .pipe(cssmin())
-//   .pipe(rename({suffix: '.min'}))
-//   .pipe(dest(paths.css.dest));
-// }
 function copyCss() {
   return src(paths.css.src)
     .pipe(postcss([autoprefixer(), cssnano()]))
@@ -125,22 +119,7 @@ function copyCss() {
  *       })
  *     ])
  */
-// function optimizeImages() {
-//   return src(paths.images.src)
-//     // .pipe(changed(imgDest))
-//     .pipe(imagemin([
-//       // imagemin.gifsicle({
-//       //   interlaced: true
-//       // }),
-//       // imagemin.mozjpeg({
-//       //   progressive: true
-//       // }),
-//       // imagemin.optipng({
-//       //   optimizationLevel: 5
-//       // })
-//     ]))
-//     .pipe(dest(paths.images.src));
-// }
+
 function optimizeImages() {
   return src(paths.images.src)
     .pipe(imagemin([
@@ -153,30 +132,23 @@ function optimizeImages() {
         optimizationLevel: 3
       }),
       imageminMoztran({
-        progressive: true
+        progressive: true,
+        quality: 75
       }),
       imageminOpngtran({
         optimizationLevel: 7
         // Level and trials:
         // (1)     (2)      (3)       (4)       (5)        (6)        (7)
         // 1 trial 8 trials 16 trials 24 trials 48 trials 120 trials 240 trials
-
       })
     ]).on('error', (error) => console.log(error)))
     .pipe(dest(paths.images.dest));
 }
-//
-// function copyImages() {
-//   // return src(paths.images.src)
-//   //   .pipe(function() {
-//   //     return series(startup, optimizeImages)
-//   //   })
-//   //   .pipe(dest(paths.images.dest));
-// }
-// task('copyimages', function(done) {
-//   series(startup, optimizeImages);
-//   done();
-// });
+// Minify Images
+/**
+ * Lot of headache
+ *
+ */
 task('copyImages', series(startup, optimizeImages));
 
 // Compile styles
@@ -241,8 +213,6 @@ exports.minifyScripts = minifyScripts;
 exports.cacheBust = cacheBust;
 exports.watcher = watcher;
 exports.default = series(
-  parallel(copyHtml, optimizeImages, compileStyles, minifyScripts),
-  cacheBust,
   watcher
 );
 //
