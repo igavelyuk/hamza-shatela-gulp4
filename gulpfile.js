@@ -23,15 +23,26 @@ const cssmin = require('gulp-cssmin');
 const buffer = require('vinyl-buffer');
 
 let /** @type {import("gulp-imagemin")} */ imagemin;
-let /** @type {import("imagemin-mozjpeg")} */ imageminJpegtran;
+
+let /** @type {import("imagemin-gifsicle")} */ imageminGiftran;
+let /** @type {import("imagemin-optipng")} */ imageminOpngtran;
+let /** @type {import("imagemin-svgo")} */ imageminSvgotran;
+let /** @type {import(""imagemin-jpegtran"")} */ imageminJpegtran;
+let /** @type {import("imagemin-mozjpeg")} */ imageminMoztran;
 let /** @type {import("imagemin-pngquant").default} */ imageminPngquant;
+let /** @type {import("imagemin-webp").default} */ imageminWebptran;
 
 const startup = async () => {
   // @ts-ignore
   imagemin = (await import("gulp-imagemin")).default;
   // @ts-ignore
+  imageminGiftran = (await import("imagemin-gifsicle")).default;
+  imageminOpngtran = (await import("imagemin-optipng")).default;
+  imageminSvgotran = (await import("imagemin-svgo")).default;
   imageminJpegtran = (await import("imagemin-jpegtran")).default;
+  imageminMoztran = (await import("imagemin-mozjpeg")).default;
   imageminPngquant = (await import("imagemin-pngquant")).default;
+  imageminWebptran = (await import("imagemin-webp")).default;
 };
 
 // run this task before any that require imagemin
@@ -132,11 +143,42 @@ function copyCss() {
 // }
 function optimizeImages() {
   return src(paths.images.src)
-    .pipe(imagemin().on('error', (error) => console.log(error)))
+    .pipe(imagemin([
+			imageminWebptran({
+        quality: 50
+      }),
+      imageminGiftran({
+        colors: 128,
+        interlaced: true,
+        optimizationLevel: 3
+      }),
+      imageminMoztran({
+        progressive: true
+      }),
+      imageminOpngtran({
+        optimizationLevel: 7
+        // Level and trials:
+        // (1)     (2)      (3)       (4)       (5)        (6)        (7)
+        // 1 trial 8 trials 16 trials 24 trials 48 trials 120 trials 240 trials
+
+      })
+    ]).on('error', (error) => console.log(error)))
     .pipe(dest(paths.images.dest));
 }
-
+//
+// function copyImages() {
+//   // return src(paths.images.src)
+//   //   .pipe(function() {
+//   //     return series(startup, optimizeImages)
+//   //   })
+//   //   .pipe(dest(paths.images.dest));
+// }
+// task('copyimages', function(done) {
+//   series(startup, optimizeImages);
+//   done();
+// });
 task('copyImages', series(startup, optimizeImages));
+
 // Compile styles
 /**
  * To concat styles, add below code after sourcemaps is initialized
@@ -191,7 +233,7 @@ function watcher() {
   watch(paths.scripts.src, parallel(minifyScripts, cacheBust));
 }
 // Export tasks to make them public
-exports.copyImages = copyImages;
+// exports.copyImages = copyImages;
 exports.copyHtml = copyHtml;
 exports.optimizeImages = optimizeImages;
 exports.compileStyles = compileStyles;

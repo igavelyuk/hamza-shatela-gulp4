@@ -18,7 +18,8 @@
   },
   "homepage": "https://github.com/igavelyuk/hamza-shatela-gulp4#readme",
   "dependencies": {
-    "gulp": "^4.0.2"
+    "gulp": "^4.0.2",
+    "imagemin-webp": "^7.0.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.2",
@@ -33,9 +34,14 @@
     "gulp-sass": "^5.1.0",
     "gulp-sourcemaps": "^3.0.0",
     "gulp-terser": "^2.1.0",
+    "imagemin-gifsicle": "^7.0.0",
     "imagemin-jpegtran": "^7.0.0",
     "imagemin-mozjpeg": "^10.0.0",
+    "imagemin-optipng": "^8.0.0",
     "imagemin-pngquant": "^9.0.2",
+    "imagemin-svgo": "^10.0.1",
+    "install": "^0.13.0",
+    "npm": "^8.5.4",
     "vinyl-buffer": "^1.0.1"
   }
 }
