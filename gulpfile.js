@@ -21,6 +21,7 @@ const cssnano = require('cssnano');
 const htmlmin = require('gulp-htmlmin');
 const cssmin = require('gulp-cssmin');
 const buffer = require('vinyl-buffer');
+const purify = require('gulp-purifycss');
 
 let /** @type {import("gulp-imagemin")} */ imagemin;
 
