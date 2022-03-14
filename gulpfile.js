@@ -1,6 +1,7 @@
 // Fetch required plugins
-const gulp = require('gulp');
+// const gulp = require('gulp');
 const {
+  task,
   src,
   dest,
   watch,
@@ -19,9 +20,10 @@ const autoprefixer = require('autoprefixer');
 const cssnano = require('cssnano');
 const htmlmin = require('gulp-htmlmin');
 const cssmin = require('gulp-cssmin');
+const buffer = require('vinyl-buffer');
 
 let /** @type {import("gulp-imagemin")} */ imagemin;
-let /** @type {import("imagemin-jpegtran")} */ imageminJpegtran;
+let /** @type {import("imagemin-mozjpeg")} */ imageminJpegtran;
 let /** @type {import("imagemin-pngquant").default} */ imageminPngquant;
 
 const startup = async () => {
@@ -33,12 +35,11 @@ const startup = async () => {
 };
 
 // run this task before any that require imagemin
-gulp.task("startup", async () => {
+task("startup", async () => {
   await startup();
 });
-
-const folder = "previewfile"
-const asset = "previewfile/assest"
+const folder = "preview-file"
+const assets = folder + "/assets"
 // All paths
 const paths = {
   html: {
@@ -46,20 +47,20 @@ const paths = {
     dest: './dist/' + folder + '/',
   },
   images: {
-    src: ['./src/' + folder + '/**/*'],
-    dest: './dist/' + folder + '/',
+    src: ['./src/' + assets + '/img/**/*'],
+    dest: './dist/' + assets + '/',
   },
   css: {
-    src: ['./src/'+ folder +'/assets/css/**/*.css'],
-    dest: './dist/'+ folder +'/assets/css/',
+    src: ['./src/' + assets + '/css/**/*.css'],
+    dest: './dist/' + assets + '/css/',
   },
   styles: {
-    src: ['./src/'+ folder +'/assets/scss/**/*.scss'],
-    dest: './dist/'+ folder +'/assets/scss/',
+    src: ['./src/' + assets + '/scss/**/*.scss'],
+    dest: './dist/' + assets + '/scss/',
   },
   scripts: {
-    src: ['./src/'+ folder +'/assets/js/**/*.js'],
-    dest: './dist/'+ folder +'/assets/js/',
+    src: ['./src/' + assets + '/js/**/*.js'],
+    dest: './dist/' + assets + '/js/',
   },
   cachebust: {
     src: ['./src/' + folder + '/**/*.html'],
@@ -68,14 +69,14 @@ const paths = {
 };
 
 // Copy html files
-function doAll() {
-  copyCss();
-  copyHtml();
-  optimizeImages();
-  compileStyles();
-  minifyScripts();
-  cacheBust();
-}
+// function doAll() {
+//   copyCss();
+//   copyHtml();
+//   optimizeImages();
+//   compileStyles();
+//   minifyScripts();
+//   cacheBust();
+// }
 
 function copyHtml() {
   return src(paths.html.src)
@@ -92,7 +93,7 @@ function copyHtml() {
 //   .pipe(dest(paths.css.dest));
 // }
 function copyCss() {
-  return gulp.src(paths.css.src)
+  return src(paths.css.src)
     .pipe(postcss([autoprefixer(), cssnano()]))
     .pipe(postcss([autoprefixer(), cssnano()]))
     .pipe(rename({
@@ -113,11 +114,29 @@ function copyCss() {
  *       })
  *     ])
  */
+// function optimizeImages() {
+//   return src(paths.images.src)
+//     // .pipe(changed(imgDest))
+//     .pipe(imagemin([
+//       // imagemin.gifsicle({
+//       //   interlaced: true
+//       // }),
+//       // imagemin.mozjpeg({
+//       //   progressive: true
+//       // }),
+//       // imagemin.optipng({
+//       //   optimizationLevel: 5
+//       // })
+//     ]))
+//     .pipe(dest(paths.images.src));
+// }
 function optimizeImages() {
   return src(paths.images.src)
     .pipe(imagemin().on('error', (error) => console.log(error)))
     .pipe(dest(paths.images.dest));
 }
+
+task('copyImages', series(startup, optimizeImages));
 // Compile styles
 /**
  * To concat styles, add below code after sourcemaps is initialized
@@ -172,7 +191,7 @@ function watcher() {
   watch(paths.scripts.src, parallel(minifyScripts, cacheBust));
 }
 // Export tasks to make them public
-exports.copyCss = copyCss;
+exports.copyImages = copyImages;
 exports.copyHtml = copyHtml;
 exports.optimizeImages = optimizeImages;
 exports.compileStyles = compileStyles;
@@ -180,8 +199,8 @@ exports.minifyScripts = minifyScripts;
 exports.cacheBust = cacheBust;
 exports.watcher = watcher;
 exports.default = series(
-  parallel(copyCss, copyHtml, optimizeImages, compileStyles, minifyScripts),
+  parallel(copyHtml, optimizeImages, compileStyles, minifyScripts),
   cacheBust,
-  watcher, doAll
+  watcher
 );
 //
