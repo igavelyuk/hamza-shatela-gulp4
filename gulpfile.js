@@ -27,7 +27,7 @@ let /** @type {import("gulp-imagemin")} */ imagemin;
 let /** @type {import("imagemin-gifsicle")} */ imageminGiftran;
 let /** @type {import("imagemin-optipng")} */ imageminOpngtran;
 let /** @type {import("imagemin-svgo")} */ imageminSvgotran;
-let /** @type {import(""imagemin-jpegtran"")} */ imageminJpegtran;
+let /** @type {import("imagemin-jpegtran")} */ imageminJpegtran;
 let /** @type {import("imagemin-mozjpeg")} */ imageminMoztran;
 let /** @type {import("imagemin-pngquant").default} */ imageminPngquant;
 let /** @type {import("imagemin-webp").default} */ imageminWebptran;
