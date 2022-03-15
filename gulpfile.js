@@ -14,7 +14,8 @@ const concat = require('gulp-concat');
 const rename = require('gulp-rename');
 const replace = require('gulp-replace');
 const terser = require('gulp-terser');
-const sass = require('gulp-sass');
+// const sass = require('gulp-sass');
+const sass = require('gulp-sass')(require('sass'));
 const postcss = require('gulp-postcss');
 const autoprefixer = require('autoprefixer');
 const cssnano = require('cssnano');
@@ -81,14 +82,20 @@ const paths = {
 };
 
 // Copy html files
-// function doAll() {
-//   copyCss();
-//   copyHtml();
-//   optimizeImages();
-//   compileStyles();
-//   minifyScripts();
-//   cacheBust();
-// }
+const turboFunction = async () => {
+  megaimport = (await series(copyCss,copyHtml,task('copyImages'),compileStyles,minifyScripts,cacheBust)());
+};
+async function doAll() {
+  await turboFunction();
+}
+
+async function asyncAwaitTask() {
+  const { version } = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+  console.log(version);
+  await Promise.resolve('some result');
+}
+
+
 
 function copyHtml() {
   return src(paths.html.src)
@@ -112,9 +119,9 @@ function copyCss() {
 
 task('purifyCss', function() {
   return src(paths.css.src)
-  // takes source CSS what have all stules for page it can be bundle of Bootstrap
-  // than takes file what probably can use it and depend how often they used it cut parts of  source to dist
-    .pipe(purify([paths.html.src,paths.js.src]))
+    // takes source CSS what have all stules for page it can be bundle of Bootstrap
+    // than takes file what probably can use it and depend how often they used it cut parts of  source to dist
+    .pipe(purify([paths.html.src, paths.js.src]))
     .pipe(dest(paths.css.dest));
 });
 // Optimize images(.png, .jpeg, .gif, .svg)
@@ -132,12 +139,12 @@ task('purifyCss', function() {
 
 function optimizeImages() {
   return src(paths.images.src)
-  // in pipe converts all JPEGS to webp format
-  // must be used with cautions
+    // in pipe converts all JPEGS to webp format
+    // must be used with cautions
     .pipe(imagemin([
-		// 	imageminWebptran({
-    //     quality: 50
-    //   }),
+      // 	imageminWebptran({
+      //     quality: 50
+      //   }),
       imageminGiftran({
         colors: 128,
         interlaced: true,
@@ -161,6 +168,11 @@ function optimizeImages() {
  * Lot of headache
  *
  */
+function copy1Images() {
+  return (series('copyImages')())
+  // OR
+  // (gulp.parallel("task1", "task2")());
+}
 task('copyImages', series(startup, optimizeImages));
 
 // Compile styles
@@ -218,6 +230,8 @@ function watcher() {
 }
 // Export tasks to make them public
 // exports.copyImages = copyImages;
+exports.doAll = doAll;
+exports.copy1Images = copy1Images;
 exports.copyHtml = copyHtml;
 exports.optimizeImages = optimizeImages;
 exports.compileStyles = compileStyles;
@@ -225,6 +239,6 @@ exports.minifyScripts = minifyScripts;
 exports.cacheBust = cacheBust;
 exports.watcher = watcher;
 exports.default = series(
-  watcher
+  watcher, doAll
 );
 //

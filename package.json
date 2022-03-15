@@ -43,6 +43,7 @@
     "imagemin-svgo": "^10.0.1",
     "install": "^0.13.0",
     "npm": "^8.5.4",
+    "sass": "^1.49.9",
     "vinyl-buffer": "^1.0.1"
   }
 }
