@@ -98,6 +98,7 @@ function copyHtml() {
     .pipe(dest(paths.html.dest));
 }
 
+
 function copyCss() {
   return src(paths.css.src)
     .pipe(postcss([autoprefixer(), cssnano()]))
@@ -108,6 +109,14 @@ function copyCss() {
     .pipe(sourcemaps.write('.'))
     .pipe(dest(paths.css.dest));
 }
+
+task('purifyCss', function() {
+  return src(paths.css.src)
+  // takes source CSS what have all stules for page it can be bundle of Bootstrap
+  // than takes file what probably can use it and depend how often they used it cut parts of  source to dist
+    .pipe(purify([paths.html.src,paths.js.src]))
+    .pipe(dest(paths.css.dest));
+});
 // Optimize images(.png, .jpeg, .gif, .svg)
 /**
  * Custom options
