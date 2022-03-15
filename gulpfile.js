@@ -134,7 +134,7 @@ function optimizeImages() {
   return src(paths.images.src)
   // in pipe converts all JPEGS to webp format
   // must be used with cautions
-    // .pipe(imagemin([
+    .pipe(imagemin([
 		// 	imageminWebptran({
     //     quality: 50
     //   }),
