@@ -132,10 +132,12 @@ task('purifyCss', function() {
 
 function optimizeImages() {
   return src(paths.images.src)
-    .pipe(imagemin([
-			imageminWebptran({
-        quality: 50
-      }),
+  // in pipe converts all JPEGS to webp format
+  // must be used with cautions
+    // .pipe(imagemin([
+		// 	imageminWebptran({
+    //     quality: 50
+    //   }),
       imageminGiftran({
         colors: 128,
         interlaced: true,
