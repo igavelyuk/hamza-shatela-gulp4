@@ -26,7 +26,11 @@ const purify = require('gulp-purifycss');
 const fontmin = require('gulp-fontmin');
 const gaprefixer = require('gulp-autoprefixer');
 const deleteLines = require('gulp-delete-lines');
-const htmlparser2 = require("htmlparser2");
+var cheerio = require('gulp-cheerio');
+
+const {
+  WritableStream
+} = require("htmlparser2/lib/WritableStream");
 
 let /** @type {import("gulp-imagemin")} */ imagemin;
 
@@ -74,7 +78,7 @@ const paths = {
   css: {
     src: ['./src/' + assets + '/css/**/*.css'],
     dest: './dist/' + assets + '/css/',
-    srcone: ['./dist/' + assets + '/css/**/*.css'],
+    srcone: ['./dist/' + assets + '/css/**/all-min.css'],
     destone: './dist/' + assets + '/css/',
   },
   fonts_ttf: {
@@ -88,7 +92,7 @@ const paths = {
   scripts: {
     src: ['./src/' + assets + '/js/**/*.js'],
     dest: './dist/' + assets + '/js/',
-    srcone: ['./dist/' + assets + '/js/**/*.js'],
+    srcone: ['./dist/' + assets + '/js/**/all-min.js'],
     destone: './dist/' + assets + '/js/',
   },
   cachebust: {
@@ -99,13 +103,13 @@ const paths = {
 
 // Copy html files
 const turboFunction = async () => {
-  megaimport = (await series(compileStyles, copyCss, copyHtml, minifyScripts, oneCss, oneScript, purifyHtml, cacheBust)());
+  megaimport = (await series(compileStyles, copyCss, copyHtml, minifyScripts, oneCss, purifyCss, oneScript, purifyHtml, cacheBust)());
 };
 const turboFunction2 = async () => {
   megaimport = (await series(task('copyImages'), cacheBust)());
 };
 async function doAll() {
-await Promise.all([turboFunction(), turboFunction2()]);
+  await Promise.all([turboFunction(), turboFunction2()]);
 }
 
 async function asyncAwaitTask() {
@@ -124,9 +128,9 @@ function copyFontsTTF() {
 
 function copyHtml() {
   return src(paths.html.src)
-    .pipe(htmlmin({
-      collapseWhitespace: true
-    }))
+    // .pipe(htmlmin({
+    //   collapseWhitespace: true
+    // }))
     .pipe(dest(paths.html.dest));
 }
 
@@ -154,8 +158,8 @@ function copyCss() {
 
 function purifyCss() {
   const HTML = paths.html.src;
-  const JS = paths.scripts.src;
-  return src(paths.css.src)
+  // const JS = paths.scripts.src;
+  return src(paths.css.srcone)
     // takes source CSS what have all stules for page it can be bundle of Bootstrap
     // than takes file what probably can use it and depend how often they used it cut parts of  source to dist
     // .pipe(purify([HTML, JS]))
@@ -168,14 +172,37 @@ function purifyCss() {
 // I think pretty dangerous function
 function purifyHtml() {
   return src(paths.html.srcpurity)
-    .pipe(deleteLines({'filters': [/<script\s+type=["']text\/javascript["']\s+src=/i]}))
-    .pipe(deleteLines({'filters': [/<script\s+src=/i]}))
-    .pipe(deleteLines({'filters': [/<link\s+rel=["']/i]}))
-    .pipe(deleteLines({'filters': [/<!--/i]}))
+    .pipe(deleteLines({
+      'filters': [/<script\s+type=["']text\/javascript["']\s+src=/i]
+    }))
+    .pipe(deleteLines({
+      'filters': [/<script\s+src=/i]
+    }))
+    .pipe(deleteLines({
+      'filters': [/<link\s+rel=["']/i]
+    }))
+    .pipe(deleteLines({
+      'filters': [/<!--/i]
+    }))
+    .pipe(cheerio(function($) {
+      // $('script').remove();
+      // $('link').remove();
+      $('body').append('<script src="all-min.js"></script>');
+      $('head').append('<link rel="stylesheet" href="all-min.css">');
+    }))
+    .pipe(htmlmin({
+      collapseWhitespace: true
+    }))
     .pipe(dest(paths.html.destpurity));
 }
 
 
+// const parserStream = new WritableStream({
+//       onclosetag(tagname) {
+//         if (tagname === "body") {
+//           console.log("That's it?!");
+//         }
+//       });
 // gulp.task('remove-scripts', function () {
 //   gulp.src('./build/index.html')
 //
@@ -304,8 +331,8 @@ function watcher() {
 }
 // Export tasks to make them public
 // exports.copyImages = copyImages;
-exports.insertTags = insertTags;
-exports.insertMegatags=insertMegatags
+// exports.insertTags = insertTags;
+// exports.insertMegatags = insertMegatags;
 exports.doAll = doAll;
 exports.copy1Images = copy1Images;
 exports.oneCss = oneCss; // second pass script
