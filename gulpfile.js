@@ -78,7 +78,7 @@ const paths = {
   css: {
     src: ['./src/' + assets + '/css/**/*.css'],
     dest: './dist/' + assets + '/css/',
-    srcone: ['./dist/' + assets + '/css/**/all-min.css'],
+    srcone: ['./dist/' + assets + '/css/**/*.css'],
     destone: './dist/' + assets + '/css/',
   },
   fonts_ttf: {
@@ -92,19 +92,26 @@ const paths = {
   scripts: {
     src: ['./src/' + assets + '/js/**/*.js'],
     dest: './dist/' + assets + '/js/',
-    srcone: ['./dist/' + assets + '/js/**/all-min.js'],
+    srcone: ['./dist/' + assets + '/js/**/*.js'],
     destone: './dist/' + assets + '/js/',
   },
   cachebust: {
     src: ['./src/' + folder + '/**/*.html'],
     dest: './dist/' + folder + '/',
   },
+  final: {
+    srcjs: ['./dist/' + assets + '/js/**/*.js'],
+    srccss: ['./dist/' + assets + '/css/**/*.css'],
+    destcss: './dist/' + assets + '/css/',
+    destjs: './dist/' + assets + '/js/',
+  }
 };
 
 // Copy html files
 const turboFunction = async () => {
-  megaimport = (await series(compileStyles, copyCss, copyHtml, minifyScripts, oneCss, purifyCss, oneScript, purifyHtml, cacheBust)());
+  megaimport = (await series(compileStyles, copyCss, copyHTML, minifyScripts, oneCss, purifyCss, oneScript, purifyHtml, cacheBust)());
 };
+// copyCss, copyHTML, minifyScripts, oneCss
 const turboFunction2 = async () => {
   megaimport = (await series(task('copyImages'), cacheBust)());
 };
@@ -126,7 +133,7 @@ function copyFontsTTF() {
     .pipe(dest(paths.fonts_ttf.dest));
 }
 
-function copyHtml() {
+function copyHTML() {
   return src(paths.html.src)
     // .pipe(htmlmin({
     //   collapseWhitespace: true
@@ -137,10 +144,10 @@ function copyHtml() {
 //2 Must run second from CSS Optimization
 function oneCss() {
   return src(paths.css.srcone)
-    .pipe(sourcemaps.init())
-    .pipe(gaprefixer())
+    // .pipe(sourcemaps.init())
+    // .pipe(gaprefixer())
     .pipe(concat('all-min.css'))
-    .pipe(sourcemaps.write('.'))
+    // .pipe(sourcemaps.write('.'))
     .pipe(dest(paths.css.destone));
 }
 
@@ -296,7 +303,7 @@ function oneScript() {
 
     .pipe(concat('all-min.js'))
     .pipe(sourcemaps.write('.'))
-    .pipe(dest(paths.scripts.destone));
+    .pipe(dest(paths.final.destjs));
 }
 
 function minifyScripts() {
@@ -324,7 +331,7 @@ function cacheBust() {
 
 // Watch for file modification at specific paths and run respective tasks accordingly
 function watcher() {
-  watch(paths.html.src, series(copyHtml, cacheBust));
+  watch(paths.html.src, series(copyHTML, cacheBust));
   watch(paths.images.src, series(startup, optimizeImages));
   watch(paths.styles.src, series(compileStyles, cacheBust));
   watch(paths.scripts.src, parallel(minifyScripts, cacheBust));
@@ -338,7 +345,7 @@ exports.copy1Images = copy1Images;
 exports.oneCss = oneCss; // second pass script
 exports.copyCss = copyCss;
 exports.purifyCss = purifyCss;
-exports.copyHtml = copyHtml;
+exports.copyHTML = copyHTML;
 exports.purifyHtml = purifyHtml; // second pass script
 exports.copyFontsTTF = copyFontsTTF;
 exports.optimizeImages = optimizeImages;
