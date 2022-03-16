@@ -23,6 +23,8 @@ const htmlmin = require('gulp-htmlmin');
 const cssmin = require('gulp-cssmin');
 const buffer = require('vinyl-buffer');
 const purify = require('gulp-purifycss');
+const fontmin = require('gulp-fontmin');
+const gaprefixer = require('gulp-autoprefixer');
 
 let /** @type {import("gulp-imagemin")} */ imagemin;
 
@@ -66,6 +68,12 @@ const paths = {
   css: {
     src: ['./src/' + assets + '/css/**/*.css'],
     dest: './dist/' + assets + '/css/',
+    srcone: ['./dist/' + assets + '/css/**/*.css'],
+    destone: './dist/' + assets + '/css/',
+  },
+  fonts_ttf: {
+    src: ['./src/' + assets + '/fonts/**/*.ttf'],
+    dest: './dist/' + assets + '/fonts/',
   },
   styles: {
     src: ['./src/' + assets + '/scss/**/*.scss'],
@@ -74,6 +82,8 @@ const paths = {
   scripts: {
     src: ['./src/' + assets + '/js/**/*.js'],
     dest: './dist/' + assets + '/js/',
+    srcone: ['./dist/' + assets + '/js/**/*.js'],
+    destone: './dist/' + assets + '/js/',
   },
   cachebust: {
     src: ['./src/' + folder + '/**/*.html'],
@@ -83,19 +93,25 @@ const paths = {
 
 // Copy html files
 const turboFunction = async () => {
-  megaimport = (await series(copyCss,copyHtml,task('copyImages'),compileStyles,minifyScripts,cacheBust)());
+  megaimport = (await series(copyCss, copyHtml, task('copyImages'), compileStyles, minifyScripts, cacheBust)());
 };
 async function doAll() {
   await turboFunction();
 }
 
 async function asyncAwaitTask() {
-  const { version } = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+  const {
+    version
+  } = JSON.parse(fs.readFileSync('package.json', 'utf8'));
   console.log(version);
   await Promise.resolve('some result');
 }
 
-
+function copyFontsTTF() {
+  return src(paths.fonts_ttf.src)
+    .pipe(fontmin())
+    .pipe(dest(paths.fonts_ttf.dest));
+}
 
 function copyHtml() {
   return src(paths.html.src)
@@ -105,7 +121,17 @@ function copyHtml() {
     .pipe(dest(paths.html.dest));
 }
 
+//2 Must run second from CSS Optimization
+function oneCss() {
+  return src(paths.css.srcone)
+    .pipe(sourcemaps.init())
+    .pipe(gaprefixer())
+    .pipe(concat('all-min.css'))
+    .pipe(sourcemaps.write('.'))
+    .pipe(dest(paths.css.destone));
+}
 
+//1 Must run first from CSS Optimization
 function copyCss() {
   return src(paths.css.src)
     .pipe(postcss([autoprefixer(), cssnano()]))
@@ -117,7 +143,7 @@ function copyCss() {
     .pipe(dest(paths.css.dest));
 }
 
-function purifyCss () {
+function purifyCss() {
   const HTML = paths.html.src;
   const JS = paths.scripts.src;
   return src(paths.css.src)
@@ -202,6 +228,14 @@ function compileStyles() {
  * To concat scripts, add below code after sourcemaps is initialized
  * .pipe(concat('{OutputFileName}.js'))
  */
+ function oneScript() {
+   return src(paths.scripts.srcone)
+     .pipe(sourcemaps.init())
+
+     .pipe(concat('all-min.js'))
+     .pipe(sourcemaps.write('.'))
+     .pipe(dest(paths.scripts.destone));
+ }
 function minifyScripts() {
   return src(paths.scripts.src)
     .pipe(sourcemaps.init())
@@ -236,11 +270,14 @@ function watcher() {
 // exports.copyImages = copyImages;
 exports.doAll = doAll;
 exports.copy1Images = copy1Images;
+exports.oneCss = oneCss;
 exports.copyCss = copyCss;
 exports.purifyCss = purifyCss;
 exports.copyHtml = copyHtml;
+exports.copyFontsTTF = copyFontsTTF;
 exports.optimizeImages = optimizeImages;
 exports.compileStyles = compileStyles;
+exports.oneScript = oneScript;
 exports.minifyScripts = minifyScripts;
 exports.cacheBust = cacheBust;
 exports.watcher = watcher;

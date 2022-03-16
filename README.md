@@ -25,7 +25,10 @@ npm install --save-dev gulp-imagemin imagemin-jpegtran imagemin-pngquant
 ```
 ```
 npm install --save-dev gulp-cssmin gulp-rename
-npm install --save-dev imagemin-gifsicle imagemin-jpegtran imagemin-optipng imagemin-svgo
+npm install --save-dev imagemin-gifsicle imagemin-jpegtran imagemin-optipng imagemin-svgo imagemin-webp
+npm install --save-dev gulp-sass sass
+npm install --save-dev gulp-fontmin
+npm install --save-dev gulp-autoprefixer
 ```
 
 ### gulpfile.js
