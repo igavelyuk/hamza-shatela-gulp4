@@ -26,7 +26,9 @@ const purify = require('gulp-purifycss');
 const fontmin = require('gulp-fontmin');
 const gaprefixer = require('gulp-autoprefixer');
 const deleteLines = require('gulp-delete-lines');
-var cheerio = require('gulp-cheerio');
+const cheerio = require('gulp-cheerio');
+const gulpFilter = require('gulp-filter');
+const clean = require('gulp-clean');
 
 const {
   WritableStream
@@ -73,13 +75,13 @@ const paths = {
     destpurity: './dist/' + folder + '/',
   },
   images: {
-    src: ['./src/' + assets + '/img/**/*'],
+    src: ['./src/' + assets + '/img/**/**/*'],
     dest: './dist/' + assets + '/img/',
   },
   css: {
     src: ['./src/' + assets + '/css/**/*.css'],
-    dest: './dist/' + assets + '/css/',
-    srcone: ['./dist/' + assets + '/css/**/*.css'],
+    dest: './dist/' + assets + '/tmp/css/',
+    srcone: ['./dist/' + assets + '/tmp/css/**/*.css'],
     destone: './dist/' + assets + '/css/',
   },
   fonts_ttf: {
@@ -92,8 +94,8 @@ const paths = {
   },
   scripts: {
     src: ['./src/' + assets + '/js/**/*.js'],
-    dest: './dist/' + assets + '/js/',
-    srcone: ['./dist/' + assets + '/js/**/*.js'],
+    dest: './dist/' + assets + '/tmp/js/',
+    srcone: ['./dist/' + assets + '/tmp/js/**/*.js'],
     destone: './dist/' + assets + '/js/',
   },
   cachebust: {
@@ -101,7 +103,7 @@ const paths = {
     dest: './dist/' + folder + '/',
   },
   final: {
-    srcjs: ['./dist/' + assets + '/js/**/*.js'],
+    srcjs: ['./dist/' + assets + '/tmp/js/**/*.js'],
     srccss: ['./dist/' + assets + '/css/**/all-min.css'],
     destcss: './dist/' + assets + '/css/',
     destjs: './dist/' + assets + '/js/',
@@ -110,14 +112,21 @@ const paths = {
 
 // Copy html files
 const turboFunction = async () => {
-  megaimport = (await series(compileStyles, copyCss, copyHTML, minifyScripts, oneCss, purifyCss, finalScript, purifyHtml, cacheBust)());
+  megaimport = (await series([copyCss, oneCss, copyHTML, purifyHtml, purifyCss, cacheBust])());
+  // megaimport = (await series(compileStyles, copyCss, copyHTML, minifyScripts, oneCss, purifyCss, finalScript, purifyHtml, cacheBust)());
+  // megaimport = (await series(compileStyles, copyCss, copyHTML, minifyScripts, oneCss, purifyCss, finalScript, purifyHtml, cacheBust)());
 };
 // copyCss, copyHTML, minifyScripts, oneCss, purifyCss,
 const turboFunction2 = async () => {
   megaimport = (await series(task('copyImages'), cacheBust)());
 };
 async function doAll() {
-  await Promise.all([turboFunction(), turboFunction2()]);
+  series(compileStyles, cacheBust, copyCss, cacheBust, oneCss,
+    cacheBust, copyHTML, cacheBust, cacheBust, purifyCss,
+    cacheBust, cacheBust, minifyScripts, cacheBust, finalScript, cacheBust,
+    purifyHtml, cacheBust, as, purifyHtml)();
+  // await Promise.all([turboFunction(), turboFunction2()]);
+  // await Promise.all(turboFunction());
 }
 
 async function asyncAwaitTask() {
@@ -149,6 +158,8 @@ function oneCss() {
     // .pipe(gaprefixer())
     .pipe(concat('all-min.css'))
     // .pipe(sourcemaps.write('.'))
+    .pipe(gulpFilter(['*', `!${assetFinal} + /css/all-min.css`]))
+    .pipe(clean())
     .pipe(dest(paths.css.destone));
 }
 
@@ -305,8 +316,19 @@ function finalScript() {
     .pipe(sourcemaps.init())
     .pipe(concat('all-min.js'))
     .pipe(sourcemaps.write('.'))
+    // .pipe(del([paths.scripts.src, `!${assetFinal} + /js/all-min.js`]))
+    // .pipe(gulpFilter(['*', `!${assetFinal} + /js/all-min.js`]))
+    // .pipe(clean())
     .pipe(dest(paths.final.destjs));
 }
+
+function as() {
+  return src('dist/preview-file/assets/tmp', {
+      read: false
+    })
+    .pipe(clean());
+}
+// task('aa',series(del(['dist/preview-file/assets/**/*','!dist/preview-file/assets/js/all-min.js'])));
 
 function minifyScripts() {
   return src(paths.scripts.src)
@@ -342,6 +364,7 @@ function watcher() {
 // exports.copyImages = copyImages;
 // exports.insertTags = insertTags;
 // exports.insertMegatags = insertMegatags;
+exports.as = as;
 exports.doAll = doAll;
 exports.copy1Images = copy1Images;
 exports.oneCss = oneCss; // second pass script

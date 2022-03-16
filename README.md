@@ -29,6 +29,7 @@ npm install --save-dev imagemin-gifsicle imagemin-jpegtran imagemin-optipng imag
 npm install --save-dev gulp-sass sass
 npm install --save-dev gulp-fontmin
 npm install --save-dev gulp-autoprefixer
+npm install --save-dev gulp-clean
 ```
 
 ### gulpfile.js
