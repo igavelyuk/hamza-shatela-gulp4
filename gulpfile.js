@@ -26,6 +26,7 @@ const purify = require('gulp-purifycss');
 const fontmin = require('gulp-fontmin');
 const gaprefixer = require('gulp-autoprefixer');
 const deleteLines = require('gulp-delete-lines');
+const htmlparser2 = require("htmlparser2");
 
 let /** @type {import("gulp-imagemin")} */ imagemin;
 
