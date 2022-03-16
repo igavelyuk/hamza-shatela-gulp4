@@ -61,6 +61,8 @@ const paths = {
   html: {
     src: ['./src/' + folder + '/*.html'],
     dest: './dist/' + folder + '/',
+    srcpurity: ['./dist/' + folder + '/*.html'],
+    destpurity: './dist/' + folder + '/',
   },
   images: {
     src: ['./src/' + assets + '/img/**/*'],
@@ -94,10 +96,13 @@ const paths = {
 
 // Copy html files
 const turboFunction = async () => {
-  megaimport = (await series(copyCss, copyHtml, task('copyImages'), compileStyles, minifyScripts, cacheBust)());
+  megaimport = (await series(compileStyles, copyCss, copyHtml, minifyScripts, oneCss, oneScript, purifyHtml, cacheBust)());
+};
+const turboFunction2 = async () => {
+  megaimport = (await series(task('copyImages'), cacheBust)());
 };
 async function doAll() {
-  await turboFunction();
+await Promise.all([turboFunction(), turboFunction2()]);
 }
 
 async function asyncAwaitTask() {
@@ -157,23 +162,23 @@ function purifyCss() {
 };
 
 // ------------------ deleteLines -------------------------------------
-
+// I think pretty dangerous function
+function purifyHtml() {
+  return src(paths.html.srcpurity)
+    .pipe(deleteLines({'filters': [/<script\s+type=["']text\/javascript["']\s+src=/i]}))
+    .pipe(deleteLines({'filters': [/<script\s+src=/i]}))
+    .pipe(deleteLines({'filters': [/<link\s+rel=["']/i]}))
+    .pipe(deleteLines({'filters': [/<!--/i]}))
+    .pipe(dest(paths.html.destpurity));
+}
 // gulp.task('remove-scripts', function () {
 //   gulp.src('./build/index.html')
-//    .pipe(deleteLines({
-//       'filters': [
-//       /<script\s+type=["']text\/javascript["']\s+src=/i
-//       ]
-//     }))
+//
 //   .pipe(gulp.dest('dist'));
 // });
 // gulp.task('remove-styles', function () {
 //   gulp.src('./build/index.html')
-//   .pipe(deleteLines({
-//       'filters': [
-//       /<link\s+rel=["']/i
-//       ]
-//     }))
+//   .
 //   .pipe(gulp.dest('dist'));
 // });
 
@@ -253,14 +258,15 @@ function compileStyles() {
  * To concat scripts, add below code after sourcemaps is initialized
  * .pipe(concat('{OutputFileName}.js'))
  */
- function oneScript() {
-   return src(paths.scripts.srcone)
-     .pipe(sourcemaps.init())
+function oneScript() {
+  return src(paths.scripts.srcone)
+    .pipe(sourcemaps.init())
 
-     .pipe(concat('all-min.js'))
-     .pipe(sourcemaps.write('.'))
-     .pipe(dest(paths.scripts.destone));
- }
+    .pipe(concat('all-min.js'))
+    .pipe(sourcemaps.write('.'))
+    .pipe(dest(paths.scripts.destone));
+}
+
 function minifyScripts() {
   return src(paths.scripts.src)
     .pipe(sourcemaps.init())
@@ -295,14 +301,15 @@ function watcher() {
 // exports.copyImages = copyImages;
 exports.doAll = doAll;
 exports.copy1Images = copy1Images;
-exports.oneCss = oneCss;
+exports.oneCss = oneCss; // second pass script
 exports.copyCss = copyCss;
 exports.purifyCss = purifyCss;
 exports.copyHtml = copyHtml;
+exports.purifyHtml = purifyHtml; // second pass script
 exports.copyFontsTTF = copyFontsTTF;
 exports.optimizeImages = optimizeImages;
 exports.compileStyles = compileStyles;
-exports.oneScript = oneScript;
+exports.oneScript = oneScript; // second pass script
 exports.minifyScripts = minifyScripts;
 exports.cacheBust = cacheBust;
 exports.watcher = watcher;
