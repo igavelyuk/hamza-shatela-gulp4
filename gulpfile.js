@@ -61,7 +61,7 @@ const paths = {
   },
   images: {
     src: ['./src/' + assets + '/img/**/*'],
-    dest: './dist/' + assets + '/',
+    dest: './dist/' + assets + '/img/',
   },
   css: {
     src: ['./src/' + assets + '/css/**/*.css'],
@@ -109,7 +109,7 @@ function copyHtml() {
 function copyCss() {
   return src(paths.css.src)
     .pipe(postcss([autoprefixer(), cssnano()]))
-    .pipe(postcss([autoprefixer(), cssnano()]))
+    // .pipe(postcss([autoprefixer(), cssnano()]))
     .pipe(rename({
       suffix: '.min'
     }))
@@ -117,13 +117,17 @@ function copyCss() {
     .pipe(dest(paths.css.dest));
 }
 
-task('purifyCss', function() {
+function purifyCss () {
+  const HTML = paths.html.src;
+  const JS = paths.scripts.src;
   return src(paths.css.src)
     // takes source CSS what have all stules for page it can be bundle of Bootstrap
     // than takes file what probably can use it and depend how often they used it cut parts of  source to dist
-    .pipe(purify([paths.html.src, paths.js.src]))
+    // .pipe(purify([HTML, JS]))
+    //previous line with javascript removed, gives an errors
+    .pipe(purify(HTML))
     .pipe(dest(paths.css.dest));
-});
+};
 // Optimize images(.png, .jpeg, .gif, .svg)
 /**
  * Custom options
@@ -232,6 +236,8 @@ function watcher() {
 // exports.copyImages = copyImages;
 exports.doAll = doAll;
 exports.copy1Images = copy1Images;
+exports.copyCss = copyCss;
+exports.purifyCss = purifyCss;
 exports.copyHtml = copyHtml;
 exports.optimizeImages = optimizeImages;
 exports.compileStyles = compileStyles;
