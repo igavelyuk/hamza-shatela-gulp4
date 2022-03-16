@@ -61,8 +61,9 @@ const startup = async () => {
 task("startup", async () => {
   await startup();
 });
-const folder = "preview-file"
-const assets = folder + "/assets"
+const folder = "preview-file";
+const assets = folder + "/assets";
+const assetFinal = "/assets";
 // All paths
 const paths = {
   html: {
@@ -101,7 +102,7 @@ const paths = {
   },
   final: {
     srcjs: ['./dist/' + assets + '/js/**/*.js'],
-    srccss: ['./dist/' + assets + '/css/**/*.css'],
+    srccss: ['./dist/' + assets + '/css/**/all-min.css'],
     destcss: './dist/' + assets + '/css/',
     destjs: './dist/' + assets + '/js/',
   }
@@ -109,9 +110,9 @@ const paths = {
 
 // Copy html files
 const turboFunction = async () => {
-  megaimport = (await series(compileStyles, copyCss, copyHTML, minifyScripts, oneCss, purifyCss, oneScript, purifyHtml, cacheBust)());
+  megaimport = (await series(compileStyles, copyCss, copyHTML, minifyScripts, oneCss, purifyCss, finalScript, purifyHtml, cacheBust)());
 };
-// copyCss, copyHTML, minifyScripts, oneCss
+// copyCss, copyHTML, minifyScripts, oneCss, purifyCss,
 const turboFunction2 = async () => {
   megaimport = (await series(task('copyImages'), cacheBust)());
 };
@@ -166,12 +167,14 @@ function copyCss() {
 function purifyCss() {
   const HTML = paths.html.src;
   // const JS = paths.scripts.src;
-  return src(paths.css.srcone)
+  return src(paths.final.srccss)
     // takes source CSS what have all stules for page it can be bundle of Bootstrap
     // than takes file what probably can use it and depend how often they used it cut parts of  source to dist
     // .pipe(purify([HTML, JS]))
     //previous line with javascript removed, gives an errors
     .pipe(purify(HTML))
+    .pipe(postcss([autoprefixer(), cssnano()]))
+    // .pipe(postcss([autoprefixer(), cssnano()]))
     .pipe(dest(paths.css.dest));
 };
 
@@ -192,10 +195,10 @@ function purifyHtml() {
       'filters': [/<!--/i]
     }))
     .pipe(cheerio(function($) {
-      // $('script').remove();
+      // $('script').remove(); /broken files
       // $('link').remove();
-      $('body').append('<script src="all-min.js"></script>');
-      $('head').append('<link rel="stylesheet" href="all-min.css">');
+      $('head').append(`<link rel="stylesheet" href="${assetFinal+'/css/all-min.css'}"/>`);
+      $('body').append(`<script src="${assetFinal+'/js/all-min.js'}"></script>`);
     }))
     .pipe(htmlmin({
       collapseWhitespace: true
@@ -297,10 +300,9 @@ function compileStyles() {
  * To concat scripts, add below code after sourcemaps is initialized
  * .pipe(concat('{OutputFileName}.js'))
  */
-function oneScript() {
-  return src(paths.scripts.srcone)
+function finalScript() {
+  return src(paths.final.srcjs)
     .pipe(sourcemaps.init())
-
     .pipe(concat('all-min.js'))
     .pipe(sourcemaps.write('.'))
     .pipe(dest(paths.final.destjs));
@@ -350,7 +352,7 @@ exports.purifyHtml = purifyHtml; // second pass script
 exports.copyFontsTTF = copyFontsTTF;
 exports.optimizeImages = optimizeImages;
 exports.compileStyles = compileStyles;
-exports.oneScript = oneScript; // second pass script
+exports.finalScript = finalScript; // second pass script
 exports.minifyScripts = minifyScripts;
 exports.cacheBust = cacheBust;
 exports.watcher = watcher;
