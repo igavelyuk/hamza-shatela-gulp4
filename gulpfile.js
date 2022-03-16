@@ -25,6 +25,7 @@ const buffer = require('vinyl-buffer');
 const purify = require('gulp-purifycss');
 const fontmin = require('gulp-fontmin');
 const gaprefixer = require('gulp-autoprefixer');
+const deleteLines = require('gulp-delete-lines');
 
 let /** @type {import("gulp-imagemin")} */ imagemin;
 
@@ -154,6 +155,30 @@ function purifyCss() {
     .pipe(purify(HTML))
     .pipe(dest(paths.css.dest));
 };
+
+// ------------------ deleteLines -------------------------------------
+
+// gulp.task('remove-scripts', function () {
+//   gulp.src('./build/index.html')
+//    .pipe(deleteLines({
+//       'filters': [
+//       /<script\s+type=["']text\/javascript["']\s+src=/i
+//       ]
+//     }))
+//   .pipe(gulp.dest('dist'));
+// });
+// gulp.task('remove-styles', function () {
+//   gulp.src('./build/index.html')
+//   .pipe(deleteLines({
+//       'filters': [
+//       /<link\s+rel=["']/i
+//       ]
+//     }))
+//   .pipe(gulp.dest('dist'));
+// });
+
+
+
 // Optimize images(.png, .jpeg, .gif, .svg)
 /**
  * Custom options
