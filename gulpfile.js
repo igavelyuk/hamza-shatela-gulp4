@@ -36,7 +36,7 @@ let /** @type {import("imagemin-jpegtran")} */ imageminJpegtran;
 let /** @type {import("imagemin-mozjpeg")} */ imageminMoztran;
 let /** @type {import("imagemin-pngquant").default} */ imageminPngquant;
 let /** @type {import("imagemin-webp").default} */ imageminWebptran;
-let /** @type {import("insert-tag").default} */ insertTag;
+// let /** @type {import("insert-tag").default} */ insertTag;
 
 const startup = async () => {
   // @ts-ignore
@@ -49,7 +49,7 @@ const startup = async () => {
   imageminMoztran = (await import("imagemin-mozjpeg")).default;
   imageminPngquant = (await import("imagemin-pngquant")).default;
   imageminWebptran = (await import("imagemin-webp")).default;
-  insertTag = (await import("insert-tag")).default;
+  // insertTag = (await import("insert-tag")).default;
 };
 
 // run this task before any that require imagemin
@@ -173,17 +173,7 @@ function purifyHtml() {
     .pipe(deleteLines({'filters': [/<!--/i]}))
     .pipe(dest(paths.html.destpurity));
 }
-function insertTags() {
-  return src(paths.html.srcpurity)
-    .pipe(series(insertTag('<a>xxx<b>yyy</b>zzz<a>', '<mark>', [0, 2, 0, 5])))
-    .pipe(dest(paths.html.destpurity));
-}
-function insertMegatags() {
-  return (series('inTags'))
-  // OR
-  // (gulp.parallel("task1", "task2")());
-}
-task('inTags', series(startup, insertTags));
+
 
 // gulp.task('remove-scripts', function () {
 //   gulp.src('./build/index.html')
