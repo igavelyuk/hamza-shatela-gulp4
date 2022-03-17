@@ -60,11 +60,15 @@ const startup = async () => {
   imageminWebptran = (await import("imagemin-webp")).default;
   // insertTag = (await import("insert-tag")).default;
 };
+// ============= finish of import of imagemin =====================
 
-// run this task before any that require imagemin
+// run this task before any that require imagemin, proper initialization
 task("startup", async () => {
   await startup();
 });
+// ============= finish initialization of imagemin ================
+
+// Configs per project
 const folder = "preview-file";
 const assets = folder + "/assets";
 const assetFinal = "assets";
