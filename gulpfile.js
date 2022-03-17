@@ -232,12 +232,10 @@ function purifyHtml() {
     }))
     .pipe(dest(paths.html.destpurity))
     .on('end', function() {
-      log({
-        Process: folder,
-        Status: "Finish",
-        Time: new Date().getTime()
+      log("Process => "+folder)
+      log.warn("Status => ============ Finish ==============")
+      log.info("Time => "+new Date().toLocaleString())
       })
-    });
 }
 
 function optimizeImages() {
@@ -373,6 +371,6 @@ exports.minifyScripts = minifyScripts;
 exports.cacheBust = cacheBust;
 exports.watcher = watcher;
 exports.default = series(
-  watcher, doAll
+doAll
 );
 //
