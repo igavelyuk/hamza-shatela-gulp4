@@ -27,7 +27,7 @@ const cheerio = require('gulp-cheerio');
 const gulpFilter = require('gulp-filter');
 const clean = require('gulp-clean');
 const gulpImgLqip = require('gulp-image-lqip');
-
+const log = require('fancy-log');
 const {
   WritableStream
 } = require("htmlparser2/lib/WritableStream");
@@ -120,34 +120,14 @@ const paths = {
   }
 };
 
-// Copy html files
-const turboFunction = async () => {
-  megaimport = (await series(compileStyles, cacheBust, copyCss, cacheBust, oneCss,
-    cacheBust, copyHTML, cacheBust, cacheBust,
-    cacheBust, minifyScripts, purifyCss, cacheBust, finalScript, cacheBust,
-    purifyHtml, cacheBust, as, purifyHtml, copyFontsTTF, copyFontsWeb, oneCssCompress)());
-  // megaimport = (await series(compileStyles, copyCss, copyHTML, minifyScripts, oneCss, purifyCss, finalScript, purifyHtml, cacheBust)());
-  // megaimport = (await series(compileStyles, copyCss, copyHTML, minifyScripts, oneCss, purifyCss, finalScript, purifyHtml, cacheBust)());
-};
-// copyCss, copyHTML, minifyScripts, oneCss, purifyCss,
-const turboFunction2 = async () => {
-  megaimport = (await series(task('copyImages'), cacheBust)());
-};
 async function doAll() {
-  series(compileStyles, cacheBust, copyCss, cacheBust, oneCss,
-    cacheBust, copyHTML, cacheBust, cacheBust,
-    cacheBust, minifyScripts, purifyCss, cacheBust, finalScript, cacheBust,
-    purifyHtml, cacheBust, as, purifyHtml, copyFontsTTF, copyFontsWeb, oneCssCompress)()
-  // await Promise.all([turboFunction(), turboFunction2()]);
-  // await Promise.all(turboFunction());
+  series(copyHTML, compileStyles, copyCss, cacheBust, oneCss, minifyScripts,
+    purifyCss, finalScript, copyFontsTTF, copyFontsWeb, oneCssCompress, cacheBust)();
+  series(series(startup, optimizeImages, as, purifyHtml))();
 }
 
-async function asyncAwaitTask() {
-  const {
-    version
-  } = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-  console.log(version);
-  await Promise.resolve('some result');
+async function finishInfo() {
+  return 0
 }
 
 function placeholder() {
@@ -250,41 +230,15 @@ function purifyHtml() {
     .pipe(htmlmin({
       collapseWhitespace: true
     }))
-    .pipe(dest(paths.html.destpurity));
+    .pipe(dest(paths.html.destpurity))
+    .on('end', function() {
+      log({
+        Process: folder,
+        Status: "Finish",
+        Time: new Date().getTime()
+      })
+    });
 }
-
-
-// const parserStream = new WritableStream({
-//       onclosetag(tagname) {
-//         if (tagname === "body") {
-//           console.log("That's it?!");
-//         }
-//       });
-// gulp.task('remove-scripts', function () {
-//   gulp.src('./build/index.html')
-//
-//   .pipe(gulp.dest('dist'));
-// });
-// gulp.task('remove-styles', function () {
-//   gulp.src('./build/index.html')
-//   .
-//   .pipe(gulp.dest('dist'));
-// });
-
-
-
-// Optimize images(.png, .jpeg, .gif, .svg)
-/**
- * Custom options
- * imagemin([
- *       imagemin.gifsicle({ interlaced: true }),
- *       imagemin.mozjpeg({ quality: 75, progressive: true }),
- *       imagemin.optipng({ optimizationLevel: 5 }),
- *       imagemin.svgo({
- *         plugins: [{ removeViewBox: true }, { cleanupIDs: false }],
- *       })
- *     ])
- */
 
 function optimizeImages() {
   return src(paths.images.src)
@@ -301,10 +255,10 @@ function optimizeImages() {
       }),
       imageminMoztran({
         progressive: true,
-        quality: 75
+        quality: 50
       }),
       imageminOpngtran({
-        optimizationLevel: 7
+        optimizationLevel: 6
         // Level and trials:
         // (1)     (2)      (3)       (4)       (5)        (6)        (7)
         // 1 trial 8 trials 16 trials 24 trials 48 trials 120 trials 240 trials
@@ -399,7 +353,7 @@ function watcher() {
 // Export tasks to make them public
 // exports.copyImages = copyImages;
 // exports.insertTags = insertTags;
-// exports.insertMegatags = insertMegatags;
+exports.finishInfo = finishInfo;
 exports.oneCssCompress = oneCssCompress;
 exports.placeholder = placeholder;
 exports.as = as;
