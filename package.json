@@ -33,6 +33,7 @@
     "gulp-filter": "^7.0.0",
     "gulp-fontmin": "^0.7.4",
     "gulp-htmlmin": "^5.0.1",
+    "gulp-image-lqip": "^2.0.0",
     "gulp-imagemin": "^8.0.0",
     "gulp-postcss": "^9.0.1",
     "gulp-purifycss": "^0.2.0",

@@ -29,6 +29,7 @@ const deleteLines = require('gulp-delete-lines');
 const cheerio = require('gulp-cheerio');
 const gulpFilter = require('gulp-filter');
 const clean = require('gulp-clean');
+const gulpImgLqip = require('gulp-image-lqip');
 
 const {
   WritableStream
@@ -85,8 +86,12 @@ const paths = {
     destone: './dist/' + assets + '/css/',
   },
   fonts_ttf: {
-    src: ['./src/' + assets + '/fonts/**/*.ttf'],
+    src: ['./src/' + assets + '/fonts/**/*'],
     dest: './dist/' + assets + '/fonts/',
+  },
+  fonts_web: {
+    src: ['./src/' + assets + '/webfonts/**/*'],
+    dest: './dist/' + assets + '/webfonts/',
   },
   styles: {
     src: ['./src/' + assets + '/scss/**/*.scss'],
@@ -122,9 +127,9 @@ const turboFunction2 = async () => {
 };
 async function doAll() {
   series(compileStyles, cacheBust, copyCss, cacheBust, oneCss,
-    cacheBust, copyHTML, cacheBust, cacheBust, purifyCss,
-    cacheBust, cacheBust, minifyScripts, cacheBust, finalScript, cacheBust,
-    purifyHtml, cacheBust, as, purifyHtml)();
+    cacheBust, copyHTML, cacheBust, cacheBust,
+    cacheBust, minifyScripts, purifyCss, cacheBust, finalScript, cacheBust,
+    purifyHtml, cacheBust, as, purifyHtml, copyFontsTTF, copyFontsWeb, oneCssCompress)();
   // await Promise.all([turboFunction(), turboFunction2()]);
   // await Promise.all(turboFunction());
 }
@@ -137,10 +142,23 @@ async function asyncAwaitTask() {
   await Promise.resolve('some result');
 }
 
+function placeholder() {
+  return src('/src/preview-file/*.html')
+    // `gulp-image-lqip` needs filepaths
+    // so you can't have any plugins before it
+    .pipe(gulpImgLqip('/img/placeholder/*'))
+}
+
 function copyFontsTTF() {
   return src(paths.fonts_ttf.src)
     .pipe(fontmin())
     .pipe(dest(paths.fonts_ttf.dest));
+}
+
+function copyFontsWeb() {
+  return src(paths.fonts_web.src)
+    .pipe(fontmin())
+    .pipe(dest(paths.fonts_web.dest));
 }
 
 function copyHTML() {
@@ -175,6 +193,16 @@ function copyCss() {
     .pipe(dest(paths.css.dest));
 }
 
+function oneCssCompress() {
+  return src(paths.css.src)
+    // .pipe(sourcemaps.init())
+    // .pipe(gaprefixer())
+    .pipe(concat('all-min.css'))
+    // .pipe(sourcemaps.write('.'))
+    .pipe(postcss([autoprefixer(), cssnano()]))
+    .pipe(dest(paths.css.destone));
+}
+
 function purifyCss() {
   const HTML = paths.html.src;
   // const JS = paths.scripts.src;
@@ -184,7 +212,7 @@ function purifyCss() {
     // .pipe(purify([HTML, JS]))
     //previous line with javascript removed, gives an errors
     .pipe(purify(HTML))
-    .pipe(postcss([autoprefixer(), cssnano()]))
+    // .pipe(postcss([autoprefixer(), cssnano()]))
     // .pipe(postcss([autoprefixer(), cssnano()]))
     .pipe(dest(paths.css.dest));
 };
@@ -364,6 +392,8 @@ function watcher() {
 // exports.copyImages = copyImages;
 // exports.insertTags = insertTags;
 // exports.insertMegatags = insertMegatags;
+exports.oneCssCompress = oneCssCompress;
+exports.placeholder = placeholder;
 exports.as = as;
 exports.doAll = doAll;
 exports.copy1Images = copy1Images;
@@ -373,6 +403,7 @@ exports.purifyCss = purifyCss;
 exports.copyHTML = copyHTML;
 exports.purifyHtml = purifyHtml; // second pass script
 exports.copyFontsTTF = copyFontsTTF;
+exports.copyFontsWeb = copyFontsWeb;
 exports.optimizeImages = optimizeImages;
 exports.compileStyles = compileStyles;
 exports.finalScript = finalScript; // second pass script
