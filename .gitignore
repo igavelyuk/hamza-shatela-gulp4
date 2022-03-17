@@ -1,8 +1,6 @@
 ./node_modules
-./src
 ./dest
 ./dist
 node_modules
-src
 dest
 dist
