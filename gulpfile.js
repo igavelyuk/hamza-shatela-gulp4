@@ -122,7 +122,7 @@ const paths = {
 
 async function doAll() {
   series(copyHTML, compileStyles, copyCss, cacheBust, oneCss, minifyScripts,
-    purifyCss, finalScript, copyFontsTTF, copyFontsWeb, oneCssCompress, cacheBust)();
+    purifyCss, finalScript, copyAllExceptCss, copyFontsTTF, copyFontsWeb, oneCssCompress, cacheBust)();
   series(series(startup, optimizeImages, as, purifyHtml))();
 }
 
@@ -168,7 +168,10 @@ function oneCss() {
     .pipe(clean())
     .pipe(dest(paths.css.destone));
 }
-
+function copyAllExceptCss() {
+  return src(['./src/' + assets + '/css/**/*','!./src/' + assets + '/css/**/*.css','!./src/' + assets + '/css/**/*.map'])
+    .pipe(dest(paths.css.destone));
+}
 //1 Must run first from CSS Optimization
 function copyCss() {
   return src(paths.css.src)
@@ -350,7 +353,7 @@ function watcher() {
 }
 // Export tasks to make them public
 // exports.copyImages = copyImages;
-// exports.insertTags = insertTags;
+exports.copyAllExceptCss = copyAllExceptCss;
 exports.finishInfo = finishInfo;
 exports.oneCssCompress = oneCssCompress;
 exports.placeholder = placeholder;
