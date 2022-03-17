@@ -1,5 +1,3 @@
-// Fetch required plugins
-// const gulp = require('gulp');
 const {
   task,
   src,
@@ -8,14 +6,13 @@ const {
   series,
   parallel
 } = require('gulp');
-// const imagemin = require('gulp-imagemin');
+// const imagemin = require('gulp-imagemin'); // require is not proper image import for current version
 const sourcemaps = require('gulp-sourcemaps');
 const concat = require('gulp-concat');
 const rename = require('gulp-rename');
 const replace = require('gulp-replace');
 const terser = require('gulp-terser');
-// const sass = require('gulp-sass');
-const sass = require('gulp-sass')(require('sass'));
+const sass = require('gulp-sass')(require('sass')); //reccomended to install two versions and import two versions
 const postcss = require('gulp-postcss');
 const autoprefixer = require('autoprefixer');
 const cssnano = require('cssnano');
@@ -35,8 +32,12 @@ const {
   WritableStream
 } = require("htmlparser2/lib/WritableStream");
 
-let /** @type {import("gulp-imagemin")} */ imagemin;
+// Proper import of imagemin and all components,
+// for easy setup recomemded install all and manage in config
+// webP format in pipe will compress all *.jpg and *.jpeg
+// files to webp with exstension of *.jpg and *.jpeg
 
+let /** @type {import("gulp-imagemin")} */ imagemin;
 let /** @type {import("imagemin-gifsicle")} */ imageminGiftran;
 let /** @type {import("imagemin-optipng")} */ imageminOpngtran;
 let /** @type {import("imagemin-svgo")} */ imageminSvgotran;
