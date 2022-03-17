@@ -66,7 +66,7 @@ task("startup", async () => {
 });
 const folder = "preview-file";
 const assets = folder + "/assets";
-const assetFinal = "/assets";
+const assetFinal = "assets";
 // All paths
 const paths = {
   html: {
@@ -117,7 +117,10 @@ const paths = {
 
 // Copy html files
 const turboFunction = async () => {
-  megaimport = (await series([copyCss, oneCss, copyHTML, purifyHtml, purifyCss, cacheBust])());
+  megaimport = (await series(compileStyles, cacheBust, copyCss, cacheBust, oneCss,
+    cacheBust, copyHTML, cacheBust, cacheBust,
+    cacheBust, minifyScripts, purifyCss, cacheBust, finalScript, cacheBust,
+    purifyHtml, cacheBust, as, purifyHtml, copyFontsTTF, copyFontsWeb, oneCssCompress)());
   // megaimport = (await series(compileStyles, copyCss, copyHTML, minifyScripts, oneCss, purifyCss, finalScript, purifyHtml, cacheBust)());
   // megaimport = (await series(compileStyles, copyCss, copyHTML, minifyScripts, oneCss, purifyCss, finalScript, purifyHtml, cacheBust)());
 };
@@ -126,11 +129,8 @@ const turboFunction2 = async () => {
   megaimport = (await series(task('copyImages'), cacheBust)());
 };
 async function doAll() {
-  series(compileStyles, cacheBust, copyCss, cacheBust, oneCss,
-    cacheBust, copyHTML, cacheBust, cacheBust,
-    cacheBust, minifyScripts, purifyCss, cacheBust, finalScript, cacheBust,
-    purifyHtml, cacheBust, as, purifyHtml, copyFontsTTF, copyFontsWeb, oneCssCompress)();
-  // await Promise.all([turboFunction(), turboFunction2()]);
+
+  await Promise.all([turboFunction(), turboFunction2()]);
   // await Promise.all(turboFunction());
 }
 
