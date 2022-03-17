@@ -52,6 +52,5 @@ npm install --save-dev gulp-sourcemaps gulp-concat gulp-rename gulp-replace gulp
 ```
 
 ### gulpfile.js
-
 `touch gulpfile.js`
 `nano gulpfile.js`
