@@ -129,8 +129,11 @@ const turboFunction2 = async () => {
   megaimport = (await series(task('copyImages'), cacheBust)());
 };
 async function doAll() {
-
-  await Promise.all([turboFunction(), turboFunction2()]);
+  series(compileStyles, cacheBust, copyCss, cacheBust, oneCss,
+    cacheBust, copyHTML, cacheBust, cacheBust,
+    cacheBust, minifyScripts, purifyCss, cacheBust, finalScript, cacheBust,
+    purifyHtml, cacheBust, as, purifyHtml, copyFontsTTF, copyFontsWeb, oneCssCompress)()
+  // await Promise.all([turboFunction(), turboFunction2()]);
   // await Promise.all(turboFunction());
 }
 
@@ -309,7 +312,7 @@ function optimizeImages() {
  * Lot of headache
  *
  */
-function copy1Images() {
+function doImages() {
   return (series('copyImages')())
   // OR
   // (gulp.parallel("task1", "task2")());
@@ -396,7 +399,7 @@ exports.oneCssCompress = oneCssCompress;
 exports.placeholder = placeholder;
 exports.as = as;
 exports.doAll = doAll;
-exports.copy1Images = copy1Images;
+exports.doImages = doImages;
 exports.oneCss = oneCss; // second pass script
 exports.copyCss = copyCss;
 exports.purifyCss = purifyCss;
