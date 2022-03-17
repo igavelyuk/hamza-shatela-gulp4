@@ -1,7 +1,14 @@
 # hamza-shatela-gulp4
 Upwork task Hamza Shatela gulp4 template with node v17.6.0
 
-## Create project
+### How to start
+
+1. Clone repo git clone git@github.com:igavelyuk/hamza-shatela-gulp4.git
+2. cd hamza-shatela-gulp4
+3. npm Install
+
+
+## Create project from ground (for study purpose)
 ```
 mkdir hamza-shatela-gulp4
 nvm install v17.6.0
@@ -16,38 +23,12 @@ npm install gulp@4
 touch .gitignore
 ```
 ### Install gulpfile depencies
-```
-npm install --save-dev gulp-sourcemaps gulp-concat gulp-rename gulp-replace gulp-terser gulp-sass gulp-postcss autoprefixer cssnano gulp-htmlmin
-```
 
 ```
-npm install --save-dev gulp-imagemin imagemin-jpegtran imagemin-pngquant
-```
-```
-npm install --save-dev gulp-cssmin gulp-rename
-npm install --save-dev imagemin-gifsicle imagemin-jpegtran imagemin-optipng imagemin-svgo imagemin-webp
-npm install --save-dev gulp-sass sass
-npm install --save-dev gulp-fontmin
-npm install --save-dev gulp-autoprefixer
-npm install --save-dev gulp-clean
+npm install --save-dev gulp-sourcemaps gulp-concat gulp-rename gulp-replace gulp-terser gulp-sass sass gulp-postcss autoprefixer cssnano gulp-htmlmin gulp-cssmin vinyl-buffer gulp-purifycss gulp-fontmin gulp-autoprefixer gulp-delete-lines gulp-cheerio gulp-filter gulp-clean gulp-image-lqip fancy-log gulp imagemin-webp autoprefixer cssnano fancy-log gulp-autoprefixer gulp-cheerio gulp-clean gulp-cssmin gulp-delete-lines gulp-filter gulp-fontmin gulp-htmlmin gulp-image-lqip gulp-imagemin gulp-postcss gulp-purifycss gulp-rename gulp-replace gulp-sass gulp-terser htmlparser2 i imagemin-gifsicle imagemin-jpegtran imagemin-mozjpeg imagemin-optipng imagemin-pngquant imagemin-svgo install npm sass vinyl-buffer
 ```
 
 ### gulpfile.js
 
 `touch gulpfile.js`
 `nano gulpfile.js`
-
-### Clean unnecessary CSS with PurifyCSS (Delete unused css)
-https://github.com/purifycss/gulp-purifycss
-
-`npm install --save-dev gulp-purifycss`
-
-```
-var purify = require('gulp-purifycss');
-
-gulp.task('css', function() {
-  return gulp.src('./public/app/example.css')
-    .pipe(purify(['./public/app/**/*.js', './public/**/*.html']))
-    .pipe(gulp.dest('./dist/'));
-});
-```
