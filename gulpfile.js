@@ -6,7 +6,7 @@ const {
   series,
   parallel
 } = require('gulp');
-// const imagemin = require('gulp-imagemin'); // require is not proper image import for current version
+// const imagemin = require('gulp-imagemin'); // require() is not proper imagemin import for current version
 const sourcemaps = require('gulp-sourcemaps');
 const concat = require('gulp-concat');
 const rename = require('gulp-rename');
