@@ -28,6 +28,8 @@ const gulpFilter = require('gulp-filter');
 const clean = require('gulp-clean');
 const gulpImgLqip = require('gulp-image-lqip');
 const log = require('fancy-log');
+const gulpAvif = require('gulp-avif');
+
 const {
   WritableStream
 } = require("htmlparser2/lib/WritableStream");
@@ -122,14 +124,25 @@ const paths = {
 
 async function doAll() {
   series(copyHTML, compileStyles, copyCss, cacheBust, oneCss, minifyScripts,
-    purifyCss, finalScript, copyAllExceptCss, copyFontsTTF, copyFontsWeb, oneCssCompress, cacheBust)();
+    purifyCss, finalScript, copyAllExceptCss, copyFontsTTF, copyFontsWeb, oneCssCompress, addFallbackAvif, cacheBust)();
   series(series(startup, optimizeImages, as, purifyHtml))();
 }
 
-async function finishInfo() {
-  return 0
+// Early prototype, not finished
+// will lead to produce
+function addFallbackAvif() {
+  return (series('addFallbackAvif1')())
+    // <picture>
+    // <source type="image/avif" srcset="./to/show.avif" />
+    // <source type="image/webp" srcset="./to/show.webp" />
+    // <img src="./to/show.png">
+    // </picture>
 }
-
+task('addFallbackAvif1', ()=>{
+    return src(paths.images.src+'.{png,jpg}')
+        .pipe(gulpAvif())
+        .pipe(dest(paths.images.dest));
+});
 function placeholder() {
   return src('/src/preview-file/*.html')
     // `gulp-image-lqip` needs filepaths
@@ -353,8 +366,9 @@ function watcher() {
 }
 // Export tasks to make them public
 // exports.copyImages = copyImages;
+exports.addFallbackAvif = addFallbackAvif;
 exports.copyAllExceptCss = copyAllExceptCss;
-exports.finishInfo = finishInfo;
+// exports.finishInfo = finishInfo;
 exports.oneCssCompress = oneCssCompress;
 exports.placeholder = placeholder;
 exports.as = as;
